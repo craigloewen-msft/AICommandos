@@ -23,3 +23,7 @@ Read the article to see the additional things that were added to this project to
 - In VS code, go to the `Run and Debug` tab, and then start one of the debugging apps. If you have Chrome start the Chrome one, if you have Microsoft Edge start the edge one.
 - Once it launches, you can set break points in your app by clicking near the line numbers. This will be super useful to you as you start coding and will make you code much faster.
 - See [this article](https://code.visualstudio.com/Docs/editor/debugging) for more info on debugging in VS Code!
+
+# Further investigations
+
+Added the code from [WarScript](https://github.com/jakewalker56/WarScript) to make a visualization of that game.

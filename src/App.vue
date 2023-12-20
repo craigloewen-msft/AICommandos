@@ -1,5 +1,5 @@
 <template>
-  <canvas ref="canvasRef" style="width: 1920px; height: 1080px;"></canvas>
+  <canvas ref="canvasRef" v-on:click="onClick" style="width: 1920px; height: 1080px;"></canvas>
 </template>
 
 <script>
@@ -11,8 +11,8 @@ export default {
   data: () => ({
     canvas: null,
     sceneManager: null,
-    gameWidth: 1920,
-    gameHeight: 1080,
+    gameWidth: 2112,
+    gameHeight: 1188, // Made these values just a bit bigger than 1920 x 1080 so I can know what's game dimensions and what's screen dimensions
   }),
   methods: {
     test() {
@@ -47,6 +47,9 @@ export default {
     handleKeyDown(event) {
       var keyCode = event.which;
       this.sceneManager.handleInput(keyCode, true);
+    },
+    onClick(event) {
+      this.sceneManager.onClick(event.clientX, event.clientY);
     }
   },
   mounted() {

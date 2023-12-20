@@ -37,16 +37,16 @@ class Spaceship {
 	}
 
 	handleInput(keyMap, camera) {
-		if (keyMap[87] && this.model.position.y + this.height / 2 < camera.position.y + camera.top) {
+		if (keyMap[87]) {
 			this.model.position.y += 5;
 		}
-		if (keyMap[83] && this.model.position.y - this.height / 2 > camera.position.y + camera.bottom) {
+		if (keyMap[83]) {
 			this.model.position.y -= 5;
 		}
-		if (keyMap[68] && this.model.position.x + this.width / 2 < camera.right) {
+		if (keyMap[68]) {
 			this.model.position.x += 5;
 		}
-		if (keyMap[65] && this.model.position.x - this.width / 2 > camera.left) {
+		if (keyMap[65]) {
 			this.model.position.x -= 5;
 		}
 	}
