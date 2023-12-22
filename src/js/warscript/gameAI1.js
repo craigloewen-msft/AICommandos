@@ -26,24 +26,32 @@ class gameAI1 {
 
     // Returns an object of {action, params} for the base
     chooseBaseAction() {
-        return { action: gameConstants.ActionEnum.SPAWN, params: gameConstants.UnitList.SCOUT.unitType };
-        //TODO add in rest of AI logic
+        if (this.warState.playerUnitTypeCounts[gameConstants.UnitList.SCOUT.unitType] < 3) {
+            return { action: gameConstants.ActionEnum.SPAWN, params: gameConstants.UnitList.SCOUT.unitType };
+        } else if (this.warState.playerUnitTypeCounts[gameConstants.UnitList.GUNNER.unitType] < 2) {
+            return { action: gameConstants.ActionEnum.SPAWN, params: gameConstants.UnitList.GUNNER.unitType };
+        } else {
+            return { action: gameConstants.ActionEnum.SPAWN, params: gameConstants.UnitList.TANK.unitType };
+        }
     }
 
     chooseUnitActions() {
         let playerUnits = this.warState.playerUnits;
         let enemyUnits = this.warState.enemyUnits;
+        let targetedEnemy = Object.values(this.player.enemyPlayers)[0];
 
         let unitActionDictionary = {};
 
         for (const [unitID, unit] of Object.entries(playerUnits)) {
             unitActionDictionary[unit.id] = {};
 
-            unitActionDictionary[unit.id].action = gameConstants.ActionEnum.MOVE;
+            unitActionDictionary[unit.id].action = gameConstants.ActionEnum.ATTACKMOVE;
             if (unit.unitType === gameConstants.UnitList.SCOUT.unitType) {
-                unitActionDictionary[unit.id].location = unit.closestResource ? unit.closestResource.position : this.warState.player.warBase.position;
-            } else {
-                unitActionDictionary[unit.id].location = unit.closestUnit ? unit.closestUnit.position : this.warState.enemyPlayers[0].warBase.position;
+                unitActionDictionary[unit.id].location = unit.closestResource ? unit.closestResource.position : targetedEnemy.warBase.position;
+            } else if (unit.unitType === gameConstants.UnitList.GUNNER.unitType) {
+                unitActionDictionary[unit.id].location = unit.closestEnemyUnit ? unit.closestEnemyUnit.position : targetedEnemy.warBase.position;
+            } else if (unit.unitType === gameConstants.UnitList.TANK.unitType) {
+                unitActionDictionary[unit.id].location = targetedEnemy.warBase.position;
             }
         }
 

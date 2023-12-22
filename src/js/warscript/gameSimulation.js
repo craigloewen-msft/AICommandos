@@ -12,8 +12,6 @@ class GameSimulation {
         this.boardWidth = inWidth;
         this.boardHeight = inHeight;
 
-        this.isAlive = true;
-
         this.gridWidthInBlocks = this.boardWidth / this.gridBlockWidth;
         this.gridHeightInBlocks = this.boardHeight / this.gridBlockHeight;
 
@@ -21,13 +19,23 @@ class GameSimulation {
 
         this.resources = {};
         this.units = {};
+        this.buildings = {};
 
-        this.entityCount = 0; 
+        this.entityCount = 0;
 
-        this.players = [
-            new Player(this.boardWidth / 5, this.boardHeight / 5, "Team 1", this.scene, this),
-            new Player(this.boardWidth * 4 / 5, this.boardHeight * 4 / 5, "Team 2", this.scene, this),
-        ];
+        let player1 = new Player(this.boardWidth / 5, this.boardHeight / 5, "Team 1", this.scene, this, 0x5f00ff);
+        let player2 = new Player(this.boardWidth * 4 / 5, this.boardHeight * 4 / 5, "Team 2", this.scene, this, 0x00ff00);
+
+        this.players = {
+            [player1.id]: player1,
+            [player2.id]: player2,
+        };
+
+        for (const [playerID, player] of Object.entries(this.players)) {
+            player.finalizeInit();
+        }
+
+        this.isRunning = true;
     }
 
     generateResources() {
@@ -44,18 +52,49 @@ class GameSimulation {
         }
     }
 
-    update() {
-        // Generate resources
-        this.generateResources();
+    loadModels() {
 
-        // Progress each player
-        for (var i = 0; i < this.players.length; i++) {
-            this.players[i].update();
+    }
+
+    removeResource(id) {
+        delete this.resources[id];
+    }
+
+    update() {
+        if (this.isRunning) {
+            // Generate resources
+            this.generateResources();
+
+            // Progress each player
+            for (const [playerID, player] of Object.entries(this.players)) {
+                player.update();
+            }
         }
     }
 
     getEntityID() {
         return this.entityCount++;
+    }
+
+    getGameStats() {
+        let stats = {};
+        stats.players = [];
+        for (const [playerID, player] of Object.entries(this.players)) {
+            let playerStatObject = {
+                id: player.id,
+                team: player.team,
+                money: player.money,
+                energy: player.energy,
+                baseHealth: player.warBase.currentHealth,
+                units: player.getUnitTypeCounts(),
+            };
+            stats.players.push(playerStatObject);
+        }
+        return stats;
+    }
+
+    endGame() {
+        this.isRunning = false;
     }
 
 }

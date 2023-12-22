@@ -8,31 +8,67 @@ class WarBase {
 
         this.id = this.player.simulation.getEntityID();
 
-        this.maxHealth = 1000;
-        this.currentHealth = 1000;
-        this.money = 400;
-        this.energy = 400;
-        this.energyRegen = 0.5;
-        this.moneyRegen = 0.5;
-        this.cooldown = 1000;
-        this.lastAction = (new Date()).getTime() - this.cooldown;
+        this.maxHealth = 500;
+        this.currentHealth = 500;
+        this.energyProduction = 0.5;
+        this.moneyProduction = 0.5;
+        this.buildCooldown = 1000;
+        this.lastBuildAction = (new Date()).getTime() - this.buildCooldown;
         this.team = this.player.team;
         this.position = new THREE.Vector3(x, y, 0);
         this.isAlive = true;
 
-        this.size = 50;
+        this.size = 30;
+
+        this.cooldown = 1000;
+        this.range = 150;
+        this.attack = 5;
+        this.lastAction = 0;
+
+        this.unitDistances = {};
+
+        this.closestEnemyUnit = null;
+        this.closestAllyUnit = null;
+
+        this.color = this.player.color;
 
         this.renderObject = null;
+        this.healthBarRenderObject = null;
 
         this.initRender();
+    }
+
+    getUnitDistances(unitList) {
+        this.unitDistances = {};
+        this.closestEnemyUnit = null;
+        this.closestAllyUnit = null;
+        let closestEnemyDistance = 9999999;
+        let closestAllyDistance = 9999999;
+
+        for (let unit of Object.values(unitList)) {
+            let distance = this.position.distanceTo(unit.position);
+            this.unitDistances[unit.id] = distance;
+
+            if (unit.player.team === this.player.team) {
+                if (distance < closestAllyDistance) {
+                    closestAllyDistance = distance;
+                    this.closestAllyUnit = unit;
+                }
+            } else {
+                if (distance < closestEnemyDistance) {
+                    closestEnemyDistance = distance;
+                    this.closestEnemyUnit = unit;
+                }
+            }
+        }
     }
 
     checkUnitAvailable() {
         // TODO: Change to player logic not base logic
         if (this.player.canMakeUnits()) {
             let current = (new Date()).getTime();
-            if (current - this.lastAction > this.cooldown) {
-                this.lastAction = current;
+            if (current - this.lastBuildAction > this.buildCooldown) {
+                this.lastBuildAction = current;
                 return true;
             }
         }
@@ -41,12 +77,12 @@ class WarBase {
 
     spawnUnit(unitType, skipValidation) {
         if (this.checkUnitAvailable() || skipValidation) {
-            let prospectiveUnit = gameConstants.UnitList.SCOUT.createUnit(this.position.x, this.position.y, this.player);
-            if ((this.energy > prospectiveUnit.energyCost && this.money > prospectiveUnit.moneyCost) || skipValidation) {
+            let prospectiveUnit = gameConstants.UnitList[unitType].createUnit(this.position.x, this.position.y, this.player);
+            if ((this.player.energy > prospectiveUnit.energyCost && this.player.money > prospectiveUnit.moneyCost) || skipValidation) {
                 this.player.addUnit(prospectiveUnit);
                 if (!skipValidation) {
-                    this.energy -= prospectiveUnit.energyCost;
-                    this.money -= prospectiveUnit.moneyCost;
+                    this.player.energy -= prospectiveUnit.energyCost;
+                    this.player.money -= prospectiveUnit.moneyCost;
                 }
                 return true;
             }
@@ -58,14 +94,17 @@ class WarBase {
         return false;
     }
 
-    incrementGoods() {
-        this.money += this.moneyRegen;
-        this.energy += this.energyRegen;
+    generateResources() {
+        this.player.money += this.moneyProduction;
+        this.player.energy += this.energyProduction;
     }
 
-    update(command) {
+    update(command, unitList) {
+        this.currentTime = new Date().getTime();
         let actionDescription = command.action;
         let params = command.params;
+
+        this.getUnitDistances(unitList);
 
         // Take actions block
         if (actionDescription) {
@@ -77,29 +116,71 @@ class WarBase {
                     break;
             }
         }
-        this.incrementGoods()
-        this.renderObject.rotation.x += 0.001;
+        this.attackNearEnemies();
+        this.generateResources();
+
+        if (this.renderObject) {
+            this.healthBarRenderObject.position.x = this.position.x;
+            this.healthBarRenderObject.position.y = this.position.y + this.size / 2 + 5;
+            this.healthBarRenderObject.scale.x = this.currentHealth / this.maxHealth;
+        }
     }
 
-    damage(damage) {
+    attackNearEnemies() {
+        if (this.closestEnemyUnit && this.unitDistances[this.closestEnemyUnit.id] < this.range) {
+            this.performUnitAttack(this.closestEnemyUnit);
+        }
+    }
+
+    performUnitAttack(unit) {
+        let delay = this.cooldown * 0.10 * Math.random();
+        if (this.currentTime - this.lastAction > this.cooldown) {
+            this.commandLocation = unit.position;
+            unit.receiveDamage(this.attack);
+            this.lastAction = this.currentTime + delay;
+
+            // Render a laser for 1 frame to show attack
+            var geometry = new THREE.BufferGeometry().setFromPoints([this.position, unit.position]);
+            var material = new THREE.LineBasicMaterial({ color: this.color });
+            var line = new THREE.Line(geometry, material);
+            this.scene.add(line);
+            setTimeout(() => {
+                this.scene.remove(line);
+            }, 100);
+        }
+    }
+
+    receiveDamage(damage) {
         this.currentHealth -= damage;
-        this.checkDeath();
-    }
-
-    checkDeath() {
         if (this.currentHealth <= 0) {
-            this.isAlive = false;
+            this.player.simulation.endGame();
         }
     }
 
     initRender() {
         const textureLoader = new THREE.TextureLoader();
-        var geometry = new THREE.BoxGeometry(this.size, this.size, this.size)
-        var material = new THREE.MeshBasicMaterial({ color: 0x00ff00});
+        var shape = new THREE.Shape();
+        var x = 0, y = 0;
+        shape.moveTo(x + this.size * Math.cos(0), y + this.size * Math.sin(0));
+        for (let side = 0; side <= 5; side++) {
+            shape.lineTo(x + this.size * Math.cos(side * 2 * Math.PI / 5), y + this.size * Math.sin(side * 2 * Math.PI / 5));
+        }
+        var extrudeSettings = { depth: this.size, bevelEnabled: false };
+        var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+        var material = new THREE.MeshBasicMaterial({ color: this.color });
         this.renderObject = new THREE.Mesh(geometry, material);
         this.renderObject.position.x = this.position.x;
         this.renderObject.position.y = this.position.y;
         this.scene.add(this.renderObject);
+
+        // Add health bar
+        var geometry = new THREE.BoxGeometry(this.size, 5, 5)
+        var material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        this.healthBarRenderObject = new THREE.Mesh(geometry, material);
+        this.healthBarRenderObject.position.x = this.position.x;
+        this.healthBarRenderObject.position.y = this.position.y + this.size / 2 + 5;
+        this.healthBarRenderObject.position.z = this.size;
+        this.scene.add(this.healthBarRenderObject);
     }
 
 }

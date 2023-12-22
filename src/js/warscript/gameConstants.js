@@ -11,6 +11,7 @@ const gameConstants = {
     ActionEnum: {
         SPAWN: "Spawn",
         ATTACK: "Attack",
+        ATTACKMOVE: "AttackMove",
         MOVE: "Move",
     },
 
@@ -18,14 +19,14 @@ const gameConstants = {
         GUNNER: {
             maxHealth: 50,
             currentHealth: 50,
-            speed: 1,
+            speed: 6,
             cooldown: 600,
-            range: 3,
-            attack: 3,
-            unitSize: 14,
+            range: 150,
+            attack: 8,
+            unitSize: 25,
             AOE: 0,
-            moneyCost: 60,
-            energyCost: 10,
+            moneyCost: 250,
+            energyCost: 250,
             unitType: this,
             createUnit: (x, y, player) => {
                 const unitStats = gameConstants.UnitList.GUNNER;
@@ -50,14 +51,14 @@ const gameConstants = {
         SCOUT: {
             maxHealth: 25,
             currentHealth: 25,
-            speed: 2,
+            speed: 9,
             cooldown: 800,
-            range: 2,
-            attack: 1,
-            unitSize: 10,
+            range: 150,
+            attack: 5,
+            unitSize: 20,
             AOE: 0,
-            moneyCost: 0,
-            energyCost: 25,
+            moneyCost: 50,
+            energyCost: 250,
             unitType: this,
             createUnit: (x, y, player) => {
                 const unitStats = gameConstants.UnitList.SCOUT;
@@ -82,14 +83,14 @@ const gameConstants = {
         TANK: {
             maxHealth: 200,
             currentHealth: 200,
-            speed: 0.5,
-            cooldown: 1000,
-            range: 3,
-            attack: 5,
-            unitSize: 15,
+            speed: 4,
+            cooldown: 1200,
+            range: 180,
+            attack: 22,
+            unitSize: 40,
             AOE: 0,
-            moneyCost: 250,
-            energyCost: 250,
+            moneyCost: 500,
+            energyCost: 500,
             unitType: this,
             createUnit: (x, y, player) => {
                 const unitStats = gameConstants.UnitList.TANK;

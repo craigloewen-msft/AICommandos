@@ -1,5 +1,6 @@
 <template>
   <canvas ref="canvasRef" v-on:click="onClick" style="width: 1920px; height: 1080px;"></canvas>
+  <pre>{{ prettyGameStats }}</pre>
 </template>
 
 <script>
@@ -11,12 +12,20 @@ export default {
   data: () => ({
     canvas: null,
     sceneManager: null,
+    gameStats: null,
     gameWidth: 2112,
     gameHeight: 1188, // Made these values just a bit bigger than 1920 x 1080 so I can know what's game dimensions and what's screen dimensions
   }),
+  computed: {
+    prettyGameStats() {
+      if (this.gameStats) {
+        return JSON.stringify(this.gameStats, null, 2);
+      }
+    }
+  },
   methods: {
-    test() {
-      console.log("Test");
+    getGameStats() {
+      this.gameStats = this.sceneManager.simulation.getGameStats();
     },
     onWindowResize() {
       const aspectRatio = this.gameWidth / this.gameHeight;
@@ -66,6 +75,9 @@ export default {
     window.addEventListener('resize', this.onWindowResize);
     window.addEventListener('keyup', this.handleKeyUp);
     window.addEventListener('keydown', this.handleKeyDown);
+
+    // Refresh game stats every 0.5 seconds
+    setInterval(this.getGameStats, 500);
 
     this.onWindowResize();
     render();

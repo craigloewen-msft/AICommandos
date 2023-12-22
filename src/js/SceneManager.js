@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import Background from './components/Background';
-import Spaceship from './components/Spaceship';
 import GameSimulation from './warscript/gameSimulation';
 
 class SceneManager {
@@ -29,7 +28,7 @@ class SceneManager {
 
         this.keyMap = [];
 
-        this.gameSimulation = new GameSimulation(this.gameDimensions.width, this.gameDimensions.height, this.scene);
+        this.simulation = new GameSimulation(this.gameDimensions.width, this.gameDimensions.height, this.scene);
     }
 
     buildScene() {
@@ -54,16 +53,13 @@ class SceneManager {
         // camera.rotation.x = (Math.PI / 2) * 0.;
         camera.position.x = this.gameDimensions.width / 2;
         camera.position.y = this.gameDimensions.height / 2;
-        camera.position.z = 1000;
+        camera.position.z = 1400;
 
         return camera;
     }
 
     createSceneSubjects() {
         this.theBackground = new Background(this.scene);
-        this.theSpaceship = new Spaceship(this.scene);
-
-        this.dynamicSubjects.push(this.theSpaceship);
     }
 
     getCanvasRelativePosition(clientX, clientY) {
@@ -103,17 +99,38 @@ class SceneManager {
 
         if (this.theBackground) this.theBackground.update();
 
-        this.theSpaceship.handleInput(this.keyMap, this.camera);
-
-
-        if (this.keyMap[38]) {
-            this.camera.position.y += 5;
-        }
-        if (this.keyMap[40]) {
-            this.camera.position.y -= 5;
+        let cameraMoveSpeed = 25;
+        
+        // W - Forward (Increase Y)
+        if (this.keyMap['W'.charCodeAt(0)]) {
+            this.camera.position.y += cameraMoveSpeed;
         }
 
-        this.gameSimulation.update();
+        // S - Backward (Decrease Y)
+        if (this.keyMap['S'.charCodeAt(0)]) {
+            this.camera.position.y -= cameraMoveSpeed;
+        }
+
+        // A - Left (Decrease X)
+        if (this.keyMap['A'.charCodeAt(0)]) {
+            this.camera.position.x -= cameraMoveSpeed;
+        }
+
+        // D - Right (Increase X)
+        if (this.keyMap['D'.charCodeAt(0)]) {
+            this.camera.position.x += cameraMoveSpeed;
+        }
+
+        // Z - Down (Increase Z)
+        if (this.keyMap['Z'.charCodeAt(0)]) {
+            this.camera.position.z -= cameraMoveSpeed;
+        }
+
+        // X - Up (Decrease Z)
+        if (this.keyMap['X'.charCodeAt(0)]) {
+            this.camera.position.z += cameraMoveSpeed;
+        }
+        this.simulation.update();
 
         this.renderer.render(this.scene, this.camera);
     }

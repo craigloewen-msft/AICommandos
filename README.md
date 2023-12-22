@@ -27,3 +27,7 @@ Read the article to see the additional things that were added to this project to
 # Further investigations
 
 Added the code from [WarScript](https://github.com/jakewalker56/WarScript) to make a visualization of that game.
+
+# Credits
+
+- [Tank model](https://www.thingiverse.com/thing:4827334/files)
