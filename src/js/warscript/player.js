@@ -39,6 +39,10 @@ class Player {
         }
     }
 
+    setAIFunction(aiFunction) {
+        this.ai.setBaseActionFunction(aiFunction);
+    }
+
     update() {
         this.warplan = this.ai.buildWarplan(new WarState(this, this.simulation));
         this.parseWarPlan(this.warplan);

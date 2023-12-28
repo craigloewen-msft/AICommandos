@@ -7,6 +7,9 @@ class gameAI1 {
         this.swarmAttacking = false;
         this.player = player;
         this.warState = null;
+        this.gameConstants = gameConstants;
+
+        this.customBaseAction = null;
     }
 
     canAfford(unitType) {
@@ -18,10 +21,21 @@ class gameAI1 {
 
     buildWarplan(inState) {
         this.warState = inState;
-        let baseAction = this.chooseBaseAction();
+        let baseAction = null;
+        if (this.customBaseAction) {
+            let aiBaseActionFunction = new Function(this.customBaseAction);
+            aiBaseActionFunction = aiBaseActionFunction.bind(this);
+            baseAction = aiBaseActionFunction();
+        } else {
+            baseAction = this.chooseBaseAction();
+        }
         let unitActions = this.chooseUnitActions();
         this.warplan = new Warplan(this.player, this.warState, baseAction, unitActions);
         return this.warplan;
+    }
+
+    setBaseActionFunction(aiFunction) {
+        this.customBaseAction = aiFunction;
     }
 
     // Returns an object of {action, params} for the base

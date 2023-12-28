@@ -93,6 +93,10 @@ class SceneManager {
         }
     }
 
+    startGame() {
+        this.simulation.start();
+    }
+
     update() {
         for (let i = 0; i < this.dynamicSubjects.length; i++)
             this.dynamicSubjects[i].update();

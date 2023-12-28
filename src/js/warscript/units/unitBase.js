@@ -131,10 +131,6 @@ class unitBase {
 
     update(command, unitList, resourceList, buildingList) {
         this.currentTime = new Date().getTime();
-        // Get distances to all other units
-        this.getUnitDistances(unitList);
-        this.getResourceDistances(resourceList);
-        this.getBuildingDistances(buildingList);
 
         // Get resource if on it 
         this.obtainResource();
@@ -151,6 +147,11 @@ class unitBase {
                     break;
             }
         }
+
+        // Get distances to all other units
+        this.getUnitDistances(unitList);
+        this.getResourceDistances(resourceList);
+        this.getBuildingDistances(buildingList);
 
         // Update render
         if (this.renderObject) {

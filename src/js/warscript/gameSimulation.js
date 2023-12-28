@@ -35,7 +35,7 @@ class GameSimulation {
             player.finalizeInit();
         }
 
-        this.isRunning = true;
+        this.isRunning = false;
     }
 
     generateResources() {
@@ -52,8 +52,12 @@ class GameSimulation {
         }
     }
 
-    loadModels() {
+    setPlayerAIFunction(playerNumber, aiFunction) {
+        this.players[playerNumber].setAIFunction(aiFunction);
+    }
 
+    start() {
+        this.isRunning = true;
     }
 
     removeResource(id) {
