@@ -14,7 +14,7 @@ import { storeToRefs } from 'pinia'
 // Data
 
 const store = useAppInfoStore();
-const { numberOfPlayers, player1AIFunction } = storeToRefs(store);
+const { numberOfPlayers, player1AIBaseFunction } = storeToRefs(store);
 
 const canvasRef = ref(null);
 let gameStats = ref(null);
@@ -73,8 +73,17 @@ function onClick(event) {
 }
 
 function startGame() {
-  if (store.player1AIFunction) {
-    sceneManager.simulation.setPlayerAIFunction(0, store.player1AIFunction);
+  if (store.player1AIBaseFunction) {
+    sceneManager.simulation.setPlayerAIBaseFunction(0, store.player1AIBaseFunction);
+  }
+  if (store.player1AIScoutFunction) {
+    sceneManager.simulation.setPlayerAIScoutFunction(0, store.player1AIScoutFunction);
+  }
+  if (store.player1AIGunnerFunction) {
+    sceneManager.simulation.setPlayerAIGunnerFunction(0, store.player1AIGunnerFunction);
+  }
+  if (store.player1AITankFunction) {
+    sceneManager.simulation.setPlayerAITankFunction(0, store.player1AITankFunction);
   }
 
   sceneManager.startGame();

@@ -7,7 +7,7 @@ class unitBase {
         this.maxHealth = maxHealth;
         this.currentHealth = currentHealth;
         this.speed = speed;
-        this.cooldown = cooldown;
+        this.attackCooldown = cooldown;
         this.range = range;
         this.attack = attack;
         this.size = size;
@@ -17,8 +17,9 @@ class unitBase {
         this.unitType = unitType;
         this.player = player;
         this.position = new THREE.Vector3(x, y, 0);
+        this.playerID = this.player.id;
 
-        this.lastAction = 0;
+        this.lastAttackTime = 0;
         this.renderObject = null;
         this.healthBarRenderObject = null;
         this.scene = this.player.scene;
@@ -175,18 +176,35 @@ class unitBase {
     }
 
     moveLocation(location) {
-        let target = new THREE.Vector3(location.x, location.y, location.z ? location.z : 0);
+        let target = null;
+        let targetClone = null;
+        if (!location) {
+            target = new THREE.Vector3(500, 500, 0);
+            targetClone = new THREE.Vector3(500, 500, 0);
+        } else {
+            target = new THREE.Vector3(location.x, location.y, location.z ? location.z : 0);
+            targetClone = new THREE.Vector3(location.x, location.y, location.z ? location.z : 0);
+        }
+
         this.commandLocation = target;
 
         let direction = target.sub(this.position);
         direction.normalize();
         direction.multiplyScalar(this.speed);
         this.position.add(direction);
-        this.faceDirection(location);
+        this.faceDirection(targetClone);
     }
 
     attackMoveLocation(location) {
-        let target = new THREE.Vector3(location.x, location.y, location.z ? location.z : 0);
+        let target = null;
+        let targetClone = null;
+        if (!location) {
+            target = new THREE.Vector3(500, 500, 0);
+            targetClone = new THREE.Vector3(500, 500, 0);
+        } else {
+            target = new THREE.Vector3(location.x, location.y, location.z ? location.z : 0);
+            targetClone = new THREE.Vector3(location.x, location.y, location.z ? location.z : 0);
+        }
 
         // If closest enemy unit is in range we attack
         if (this.closestEnemyUnit != null && this.unitDistances[this.closestEnemyUnit.id] < this.range) {
@@ -196,7 +214,7 @@ class unitBase {
             this.performUnitBuildingAttack(this.closestEnemyBuilding);
             // Otherwise we move towards the location
         } else {
-            this.moveLocation(location);
+            this.moveLocation(targetClone);
         }
     }
 
@@ -208,11 +226,11 @@ class unitBase {
     }
 
     performUnitAttack(unit) {
-        let delay = this.cooldown * 0.10 * Math.random();
-        if (this.currentTime - this.lastAction > this.cooldown) {
+        let delay = this.attackCooldown * 0.10 * Math.random();
+        if (this.currentTime - this.lastAttackTime > this.attackCooldown) {
             this.commandLocation = unit.position;
             unit.receiveDamage(this.attack);
-            this.lastAction = this.currentTime + delay;
+            this.lastAttackTime = this.currentTime + delay;
 
             this.faceDirection(unit.position);
 

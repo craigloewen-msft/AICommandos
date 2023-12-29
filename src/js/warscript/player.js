@@ -39,8 +39,20 @@ class Player {
         }
     }
 
-    setAIFunction(aiFunction) {
+    setAIBaseFunction(aiFunction) {
         this.ai.setBaseActionFunction(aiFunction);
+    }
+
+    setAIScoutFunction(aiFunction) {
+        this.ai.setScoutActionFunction(aiFunction);
+    }
+
+    setAIGunnerFunction(aiFunction) {
+        this.ai.setGunnerActionFunction(aiFunction);
+    }
+
+    setAITankFunction(aiFunction) {
+        this.ai.setTankActionFunction(aiFunction);
     }
 
     update() {

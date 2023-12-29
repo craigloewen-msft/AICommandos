@@ -52,8 +52,24 @@ class GameSimulation {
         }
     }
 
-    setPlayerAIFunction(playerNumber, aiFunction) {
-        this.players[playerNumber].setAIFunction(aiFunction);
+    getPlayerByIndex(index) {
+        return Object.values(this.players)[index];
+    }
+
+    setPlayerAIBaseFunction(playerNumber, aiFunction) {
+        this.getPlayerByIndex(playerNumber).setAIBaseFunction(aiFunction);
+    }
+
+    setPlayerAIScoutFunction(playerNumber, aiFunction) {
+        this.getPlayerByIndex(playerNumber).setAIScoutFunction(aiFunction);
+    }
+
+    setPlayerAIGunnerFunction(playerNumber, aiFunction) {
+        this.getPlayerByIndex(playerNumber).setAIGunnerFunction(aiFunction);
+    }
+
+    setPlayerAITankFunction(playerNumber, aiFunction) {
+        this.getPlayerByIndex(playerNumber).setAITankFunction(aiFunction);
     }
 
     start() {

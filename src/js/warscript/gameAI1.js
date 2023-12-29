@@ -8,8 +8,6 @@ class gameAI1 {
         this.player = player;
         this.warState = null;
         this.gameConstants = gameConstants;
-
-        this.customBaseAction = null;
     }
 
     canAfford(unitType) {
@@ -22,20 +20,34 @@ class gameAI1 {
     buildWarplan(inState) {
         this.warState = inState;
         let baseAction = null;
-        if (this.customBaseAction) {
-            let aiBaseActionFunction = new Function(this.customBaseAction);
-            aiBaseActionFunction = aiBaseActionFunction.bind(this);
-            baseAction = aiBaseActionFunction();
-        } else {
-            baseAction = this.chooseBaseAction();
-        }
+        baseAction = this.chooseBaseAction();
         let unitActions = this.chooseUnitActions();
         this.warplan = new Warplan(this.player, this.warState, baseAction, unitActions);
         return this.warplan;
     }
 
     setBaseActionFunction(aiFunction) {
-        this.customBaseAction = aiFunction;
+        let aiBaseActionFunction = new Function(aiFunction);
+        aiBaseActionFunction = aiBaseActionFunction.bind(this);
+        this.chooseBaseAction = aiBaseActionFunction;
+    }
+
+    setScoutActionFunction(aiFunction, scoutUnitList, unitActionDictionary) {
+        let aiScoutActionFunction = new Function('scoutUnitList', 'unitActionDictionary', aiFunction);
+        aiScoutActionFunction = aiScoutActionFunction.bind(this);
+        this.chooseScoutActions = aiScoutActionFunction;
+    }
+
+    setGunnerActionFunction(aiFunction, gunnerUnitList, unitActionDictionary) {
+        let aiGunnerActionFunction = new Function('gunnerUnitList', 'unitActionDictionary', aiFunction);
+        aiGunnerActionFunction = aiGunnerActionFunction.bind(this);
+        this.chooseGunnerActions = aiGunnerActionFunction;
+    }
+
+    setTankActionFunction(aiFunction, tankUnitList, unitActionDictionary) {
+        let aiTankActionFunction = new Function('tankUnitList', 'unitActionDictionary', aiFunction);
+        aiTankActionFunction = aiTankActionFunction.bind(this);
+        this.chooseTankActions = aiTankActionFunction;
     }
 
     // Returns an object of {action, params} for the base
@@ -51,25 +63,58 @@ class gameAI1 {
 
     chooseUnitActions() {
         let playerUnits = this.warState.playerUnits;
-        let enemyUnits = this.warState.enemyUnits;
-        let targetedEnemy = Object.values(this.player.enemyPlayers)[0];
-
-        let unitActionDictionary = {};
+        let scoutUnitList = [];
+        let gunnerUnitList = [];
+        let tankUnitList = [];
 
         for (const [unitID, unit] of Object.entries(playerUnits)) {
-            unitActionDictionary[unit.id] = {};
-
-            unitActionDictionary[unit.id].action = gameConstants.ActionEnum.ATTACKMOVE;
             if (unit.unitType === gameConstants.UnitList.SCOUT.unitType) {
-                unitActionDictionary[unit.id].location = unit.closestResource ? unit.closestResource.position : targetedEnemy.warBase.position;
+                scoutUnitList.push(unit);
             } else if (unit.unitType === gameConstants.UnitList.GUNNER.unitType) {
-                unitActionDictionary[unit.id].location = unit.closestEnemyUnit ? unit.closestEnemyUnit.position : targetedEnemy.warBase.position;
+                gunnerUnitList.push(unit);
             } else if (unit.unitType === gameConstants.UnitList.TANK.unitType) {
-                unitActionDictionary[unit.id].location = targetedEnemy.warBase.position;
+                tankUnitList.push(unit);
             }
         }
 
+        let unitActionDictionary = {};
+
+        this.chooseScoutActions(scoutUnitList, unitActionDictionary);
+        this.chooseGunnerActions(gunnerUnitList, unitActionDictionary);
+        this.chooseTankActions(tankUnitList, unitActionDictionary);
+
         return unitActionDictionary;
+    }
+
+    chooseScoutActions(scoutUnitList, unitActionDictionary) {
+        let attackMove = this.gameConstants.ActionEnum.ATTACKMOVE;
+
+        for (let i = 0; i < scoutUnitList.length; i++) {
+            let unit = scoutUnitList[i];
+            unitActionDictionary[unit.id] = { action: attackMove, location: unit.closestResource ? unit.closestResource.position : { x: 500, y: 500 } };
+        }
+    }
+
+    chooseGunnerActions(gunnerUnitList, unitActionDictionary) {
+        let attackMove = gameConstants.ActionEnum.ATTACKMOVE;
+
+        for (let i = 0; i < gunnerUnitList.length; i++) {
+            let unit = gunnerUnitList[i];
+            if (unit.closestEnemyUnit) {
+                unitActionDictionary[unit.id] = { action: attackMove, location: unit.closestEnemyUnit?.position };
+            } else {
+                unitActionDictionary[unit.id] = { action: attackMove, location: unit.closestEnemyBuilding?.position };
+            }
+        }
+    }
+
+    chooseTankActions(tankUnitList, unitActionDictionary) {
+        let attackMove = gameConstants.ActionEnum.ATTACK_MOVE;
+
+        for (let i = 0; i < tankUnitList.length; i++) {
+            let unit = tankUnitList[i];
+            unitActionDictionary[unit.id] = { action: attackMove, location: unit.closestEnemyBuilding?.position };
+        }
     }
 }
 
