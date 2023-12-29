@@ -13,9 +13,9 @@
                         <div class="d-flex flex-column align-items-center">
                             <p>How many players?</p>
                             <div class="d-flex justify-content-center">
-                                <button type="button" class="btn btn-primary me-2" v-on:click="setNumberOfPlayers(1)">1
-                                    player</button>
-                                <button type="button" class="btn btn-primary" v-on:click="setNumberOfPlayers(2)">2
+                                <button type="button" class="btn btn-primary" v-on:click="setNumberOfPlayers(-1)">Watch AIs
+                                    play</button>
+                                <button type="button" style="margin-left: 5px;" class="btn btn-primary me-2" v-on:click="setNumberOfPlayers(1)">1
                                     player</button>
                             </div>
                         </div>
@@ -85,9 +85,15 @@ import { Modal } from 'bootstrap'
 import completionHandler from "@/js/ai/completionHandler";
 
 const store = useAppInfoStore();
-const { numberOfPlayers, player1AIBaseFunction, player1AIScoutFunction, player1AIGunnerFunction, player1AITankFunction } = storeToRefs(store);
+const { secretKey, numberOfPlayers, player1AIBaseFunction, player1AIScoutFunction, player1AIGunnerFunction, player1AITankFunction } = storeToRefs(store);
 
-const aiCompletions = new completionHandler(() => console.log("AI completions loaded"));
+let uri = window.location.href.split('?');
+if (uri.length > 1) {
+    let params = new URLSearchParams(uri[1]);
+    secretKey.value = params.get('secretKey');
+}
+
+const aiCompletions = new completionHandler(() => console.log("AI completions loaded"), secretKey.value);
 
 // App data
 const inputText = ref('');
@@ -105,7 +111,7 @@ const state = reactive({
 
 // Pre-add data for testing
 let autoClose = false;
-store.numberOfPlayers = 1;
+// store.numberOfPlayers = 1;
 player1AIBaseFunctionTextInput.value = "Maintain 1 scout, 2 gunners and then spawn tanks";
 player1AIScoutFunctionTextInput.value = "Move to the closest resource. If an enemy gets within 120 units move to back to the closest unit or the base.";
 player1AIGunnerFunctionTextInput.value = "Attack move to the closest enemy. If an enemy doesn't exist go to the base.";
@@ -127,6 +133,9 @@ function closeModal() {
 
 function setNumberOfPlayers(number) {
     store.numberOfPlayers = number;
+    if (number === -1) {
+        finishModal();
+    }
 }
 
 function finishModal() {

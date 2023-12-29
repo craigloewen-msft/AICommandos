@@ -105,35 +105,35 @@ class SceneManager {
 
         let cameraMoveSpeed = 25;
         
-        // W - Forward (Increase Y)
-        if (this.keyMap['W'.charCodeAt(0)]) {
-            this.camera.position.y += cameraMoveSpeed;
-        }
+        // // W - Forward (Increase Y)
+        // if (this.keyMap['W'.charCodeAt(0)]) {
+        //     this.camera.position.y += cameraMoveSpeed;
+        // }
 
-        // S - Backward (Decrease Y)
-        if (this.keyMap['S'.charCodeAt(0)]) {
-            this.camera.position.y -= cameraMoveSpeed;
-        }
+        // // S - Backward (Decrease Y)
+        // if (this.keyMap['S'.charCodeAt(0)]) {
+        //     this.camera.position.y -= cameraMoveSpeed;
+        // }
 
-        // A - Left (Decrease X)
-        if (this.keyMap['A'.charCodeAt(0)]) {
-            this.camera.position.x -= cameraMoveSpeed;
-        }
+        // // A - Left (Decrease X)
+        // if (this.keyMap['A'.charCodeAt(0)]) {
+        //     this.camera.position.x -= cameraMoveSpeed;
+        // }
 
-        // D - Right (Increase X)
-        if (this.keyMap['D'.charCodeAt(0)]) {
-            this.camera.position.x += cameraMoveSpeed;
-        }
+        // // D - Right (Increase X)
+        // if (this.keyMap['D'.charCodeAt(0)]) {
+        //     this.camera.position.x += cameraMoveSpeed;
+        // }
 
-        // Z - Down (Increase Z)
-        if (this.keyMap['Z'.charCodeAt(0)]) {
-            this.camera.position.z -= cameraMoveSpeed;
-        }
+        // // Z - Down (Increase Z)
+        // if (this.keyMap['Z'.charCodeAt(0)]) {
+        //     this.camera.position.z -= cameraMoveSpeed;
+        // }
 
-        // X - Up (Decrease Z)
-        if (this.keyMap['X'.charCodeAt(0)]) {
-            this.camera.position.z += cameraMoveSpeed;
-        }
+        // // X - Up (Decrease Z)
+        // if (this.keyMap['X'.charCodeAt(0)]) {
+        //     this.camera.position.z += cameraMoveSpeed;
+        // }
         this.simulation.update();
 
         this.renderer.render(this.scene, this.camera);

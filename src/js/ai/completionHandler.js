@@ -1,7 +1,10 @@
 import { OpenAIClient, AzureKeyCredential } from "@azure/openai";
 
+import CryptoJS from "crypto-js";
+import CryptoENC from 'crypto-js/enc-utf8';
+
 class completionHandler {
-    constructor(callback) {
+    constructor(callback, secretKey) {
         this.loadConfig(callback);
         this.client = null;
         this.gameInfo = `\`\`\`
@@ -18,16 +21,20 @@ The ATTACKMOVE option will make a unit attack towards a position. If it's in ran
         this.codeStyleInstructions = "Your output code should be short and concise while delivering all that is asked of you. Use inline functions and variables for repeated tasks or to shorten code if necessary. An unit closestEnemyUnit, closestEnemyBuilding, etc. values can be null, always check before using them.";
         this.maxTokens = 2000;
         this.temperature = 0.01;
+        this.secretKey = secretKey;
     }
 
     async loadConfig(callback) {
-        // If ./config.js exists import it
-        try {
-            let config = await import('./config.js');
-            this.config = config.default;
-        } catch (e) {
-            this.config = {};
+        // Unhash the configHashed.js file
+        let config = await import('./configHashed.js');
+        this.config = config.default;
+
+        for (let key in this.config) {
+            const decryptedCipher = CryptoJS.AES.decrypt(this.config[key].toString(), this.secretKey);
+            const decryptedData = decryptedCipher.toString(CryptoENC);
+            this.config[key] = decryptedData;
         }
+
         await this.setupAI();
         callback();
     }
