@@ -19,7 +19,7 @@ const gameConstants = {
         GUNNER: {
             maxHealth: 50,
             currentHealth: 50,
-            speed: 6,
+            speed: 3,
             cooldown: 600,
             range: 150,
             attack: 8,
@@ -51,7 +51,7 @@ const gameConstants = {
         SCOUT: {
             maxHealth: 25,
             currentHealth: 25,
-            speed: 9,
+            speed: 4,
             cooldown: 800,
             range: 150,
             attack: 5,
@@ -83,7 +83,7 @@ const gameConstants = {
         TANK: {
             maxHealth: 200,
             currentHealth: 200,
-            speed: 4,
+            speed: 2,
             cooldown: 1200,
             range: 180,
             attack: 22,
