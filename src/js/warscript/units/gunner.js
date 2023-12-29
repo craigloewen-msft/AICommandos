@@ -6,7 +6,7 @@ class Gunner extends unitBase {
     }
 
     initMainRenderObject() {
-        this.loadModel("/src/assets/models/hover.obj");
+        this.loadModel("/assets/models/hover.obj");
         this.angleOffset = Math.PI / 2;
     }
 }

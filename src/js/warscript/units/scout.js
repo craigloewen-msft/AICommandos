@@ -6,7 +6,7 @@ class Scout extends unitBase {
     }
 
     initMainRenderObject() {
-        this.loadModel("/src/assets/models/spaceship.obj");
+        this.loadModel("/assets/models/spaceship.obj");
     }
 }
 

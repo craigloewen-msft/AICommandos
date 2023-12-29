@@ -6,7 +6,7 @@ class Tank extends unitBase {
     }
 
     initMainRenderObject() {
-        this.loadModel("/src/assets/models/tank.obj");
+        this.loadModel("/assets/models/tank.obj");
     }
 }
 
